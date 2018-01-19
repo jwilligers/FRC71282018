@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.CameraServer;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -42,6 +43,7 @@ public class Robot extends IterativeRobot {
 		leftSpark = new Spark(0);
 		rightSpark = new Spark(1);
 		drivebase = new DifferentialDrive(leftSpark, rightSpark);
+		CameraServer.getInstance().startAutomaticCapture();
 	}
 
 	/**
