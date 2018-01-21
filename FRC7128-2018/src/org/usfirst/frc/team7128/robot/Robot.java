@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.first.wpilibj.Encoder;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -28,9 +29,16 @@ public class Robot extends IterativeRobot {
 	
 	boolean robotIsOn = true;
 	
+	Encoder encRight;
+	Encoder encLeft;
+	
 	double axisX;
 	double axisY;
 	double axisZ;
+	
+	double distanceRight;
+	double distanceLeft;
+	double distance;
 	
 	DifferentialDrive drivebase;
 	
@@ -43,7 +51,9 @@ public class Robot extends IterativeRobot {
 		leftSpark = new Spark(0);
 		rightSpark = new Spark(1);
 		drivebase = new DifferentialDrive(leftSpark, rightSpark);
+		
 		CameraServer.getInstance().startAutomaticCapture();
+		
 	}
 
 	/**
@@ -60,13 +70,36 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void autonomousInit() {
 
+		encRight = new Encoder(0,1,false,Encoder.EncodingType.k4X); //0 and 1 are the digital port numbers, false tells the encoder not to invert the direction, and k4X im not so sure about but like just use it and if doesn't work change it to 1X or 2X...something about counting edges... 
+		encRight.setMinRate(5);
+		encRight.setReverseDirection(true); //might have to change
+		encRight.setSamplesToAverage(7);
+		encRight.setDistancePerPulse(18.849556/800);
+		encRight.reset();
+		
+		
+		encLeft = new Encoder(2,3,true, Encoder.EncodingType.k4X); //you might have to change around the true and false because of how the encoders will be mounted
+		encLeft.setMinRate(5); //rpm 
+		encLeft.setReverseDirection(false); //might have to change
+		encLeft.setSamplesToAverage(7);
+		encLeft.setDistancePerPulse(18.849556/800); //circumference of a 6" diameter wheel divided by a 200p/m encoder which has a 4x multiplier
+		encLeft.reset();	
+
 	}
 
 	
 	
 	@Override
 	public void autonomousPeriodic() {
-			
+		drivebase.arcadeDrive(0.3, 0);
+		
+		distanceLeft = encLeft.getDistance(); //get encoder distance
+		distanceRight = encRight.getDistance();
+		distance = (distanceLeft + distanceRight)/2; //average of what the two encoders have detected
+		System.out.println(distance); //this will spam your dashboard, but itll allow you to see whether your encoders are working fine
+			if(distance > 36) { //drive till encoders have been going for three feet
+				drivebase.arcadeDrive(0, 0); //stop motors
+			}
 	}
 
 	/**
@@ -74,43 +107,13 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-		axisY = joystick.getRawAxis(1);
 		axisX = joystick.getRawAxis(0);
+		axisY = joystick.getRawAxis(1);
 		axisZ = joystick.getRawAxis(2);
 		
 		drivebase.arcadeDrive(axisY, axisZ);
+		leftSpark.stopMotor();
 		
-		/*if trying to turn, select the right motor
-		if (rawDirection >= 0 ) {
-			selectRight = true;
-		}
-		else {
-			selectRight = false; 	
-		}
-		
-		//if you are trying to go backwards but also right
-		if (rawPower < 0 & selectRight || rawPower> 0 &  !selectRight) {
-			
-			rawDirection = -rawDirection;
-		}
-		
-		//setting motor powers
-		if(selectRight) {
-			rightPower = rawPower - rawDirection;
-			leftPower = rawPower;
-		} else {
-			if(rawPower ==0) {
-				rightPower = rawPower;
-				leftPower = rawDirection;
-			}
-			else {
-				rightPower = rawPower;
-				leftPower = rawPower - rawDirection;
-			}
-		}
-		
-		leftSpark.set(leftPower);
-		rightSpark.set(-rightPower);*/
 	}
 			
 
