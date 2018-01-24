@@ -74,7 +74,7 @@ public class Robot extends IterativeRobot {
 		encRight.setMinRate(5);
 		encRight.setReverseDirection(true); //might have to change
 		encRight.setSamplesToAverage(7);
-		encRight.setDistancePerPulse(18.849556/800);
+		encRight.setDistancePerPulse(18.849556/4096);
 		encRight.reset();
 		
 		
@@ -82,7 +82,7 @@ public class Robot extends IterativeRobot {
 		encLeft.setMinRate(5); //rpm 
 		encLeft.setReverseDirection(false); //might have to change
 		encLeft.setSamplesToAverage(7);
-		encLeft.setDistancePerPulse(18.849556/800); //circumference of a 6" diameter wheel divided by a 200p/m encoder which has a 4x multiplier
+		encLeft.setDistancePerPulse(18.849556/4096); //circumference of a 6" diameter wheel divided by a 200p/m encoder which has a 4x multiplier
 		encLeft.reset();	
 
 	}
