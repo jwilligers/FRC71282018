@@ -40,6 +40,8 @@ public class Robot extends IterativeRobot {
 	double distanceLeft;
 	double distance;
 	
+	int testInt = 0;
+	
 	DifferentialDrive drivebase;
 	
 	/**
@@ -113,6 +115,8 @@ public class Robot extends IterativeRobot {
 		
 		drivebase.arcadeDrive(axisY, axisZ);
 		leftSpark.stopMotor();
+		
+		System.out.println("This is a test");
 		
 	}
 			

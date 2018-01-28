@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="FRC7128-2018/src"/>
+	<classpathentry kind="output" path="FRC7128-2018/bin"/>
+</classpath>
