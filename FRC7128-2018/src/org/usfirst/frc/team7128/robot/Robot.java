@@ -44,6 +44,7 @@ public class Robot extends IterativeRobot {
 	int test1;
 	int test2;
 	int test3;
+	int test4;
 	
 	DifferentialDrive drivebase;
 	
