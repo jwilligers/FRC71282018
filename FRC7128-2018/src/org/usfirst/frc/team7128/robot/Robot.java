@@ -41,6 +41,7 @@ public class Robot extends IterativeRobot {
 	double distance;
 	
 	int testInt = 0;
+	int test1;
 	
 	DifferentialDrive drivebase;
 	
