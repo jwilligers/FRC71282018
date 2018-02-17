@@ -33,11 +33,13 @@ public class Robot extends IterativeRobot {
 	Spark leftSpark; //Left Drive Motor
 	Spark rightSpark; //Right Drive Motor
 	
-	Jaguar leftWheelMotor = new Jaguar(3);
-	Jaguar rightWheelMotor = new Jaguar(4);
+	Jaguar liftMotor = new Jaguar(3);
 	
-	Jaguar intakeLeft = new Jaguar(5);
-	Jaguar intakeRight = new Jaguar(6);
+	TalonSRX intakeMotorR = new TalonSRX(5);
+	TalonSRX intakeMotorL = new TalonSRX(6);
+	
+	boolean robotIsOn = true;
+
 	
 	boolean robotIsOn = true;
 	
@@ -150,8 +152,7 @@ public class Robot extends IterativeRobot {
 							drivebase.arcadeDrive(5/currentVoltage, 0.8*(gyroAngle-90)); //move towards the switch
 						}
 						else if(seconds < 9) {
-							leftWheelMotor.set(1); //turn on lift
-							leftWheelMotor.set(1);
+							liftMotor.set(1); //turn on lift
 						}
 						else if(seconds < 10) { //dispense cube
 							intakeLeft.set(-.5);
@@ -182,8 +183,7 @@ public class Robot extends IterativeRobot {
 							drivebase.arcadeDrive(5/currentVoltage, 0.08*(gyroAngle - 0));//slowly drive forward 49"
 						}
 						else if(seconds < 9) {
-							rightWheelMotor.set(1);//turn on lift - might move this with the 'slowly drive forward part
-							leftWheelMotor.set(1);
+							liftMotor.set(1);//turn on lift - might move this with the 'slowly drive forward part
 						}
 						else if(seconds < 10) {
 							intakeLeft.set(-5);//dispense cube(but not a cube because FIRST doesn't know how to define a cube)
@@ -207,8 +207,7 @@ public class Robot extends IterativeRobot {
 							drivebase.arcadeDrive(5/currentVoltage, 0.08*(gyroAngle - 0));//slowly drive foward
 						}
 						else if(seconds < 9) {
-							rightWheelMotor.set(1);//turn on lift
-							leftWheelMotor.set(1);
+							liftMotor.set(1);//turn on lift
 						}
 						else if(seconds < 10) {
 							intakeLeft.set(-5);//dispense cube
@@ -232,7 +231,6 @@ public class Robot extends IterativeRobot {
 						}
 						else if(seconds < 9) {
 							leftWheelMotor.set(1); //turn on lift
-							leftWheelMotor.set(1);
 						}
 						else if(seconds < 10) { //dispense cube from 8-9 secs
 							intakeLeft.set(-.5);
@@ -289,19 +287,31 @@ public class Robot extends IterativeRobot {
 		//oldPower = currentPower;
 		//double currentPower = power;
 		*/
-		drivebase.arcadeDrive(axisY, axisZ);
+		    
+		m_robotDrive.arcadeDrive(joystick.getY(), joystick.getX());
 		
-		
-	
-		if(joystick.getRawButton(11)) {
-			leftWheelMotor.set(axisW);
-			rightWheelMotor.set(-axisW);	
-		} else if (joystick.getRawButton(12)) {
-			leftWheelMotor.set(-axisW);
-			rightWheelMotor.set(axisW);
-		} else {
-			leftWheelMotor.set(0);
-			rightWheelMotor.set(0);      
+		if(joystick .getRawButton(5) && !limitSwitchA.get()) { // move carriage up
+			liftMotor.set(0.5);
 		}
+		else if (joystick .getRawButton(3) /*&& !limitSwitchB.get()*/) {  // move carriage down
+			liftMotor.set(-0.5);
+		} else {
+			liftMotor.set(0);
+		}
+	     
+		if(joystick.getRawButton(6)) {
+			intakeRight.set(ControlMode.PercentOutput, 0.5);
+			intakeLeft.set(ControlMode.PercentOutput, -0.5);
+		}
+		else if(joystick.getRawButton(7)) {
+			intakeRight.set(ControlMode.PercentOutput, -0.5);
+			intakeLeft.set(ControlMode.PercentOutput, 0.5);
+		}
+		else {
+			intakeRight.set(ControlMode.PercentOutput, 0);
+		
+			intakeLeft.set(ControlMode.PercentOutput, 0);
+		}
+	
 	}
 }
