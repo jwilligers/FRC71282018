@@ -13,10 +13,16 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+//import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+
+//import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 
 /**
@@ -33,12 +39,16 @@ public class Robot extends IterativeRobot {
 	Spark leftSpark; //Left Drive Motor
 	Spark rightSpark; //Right Drive Motor
 	
-	Jaguar liftMotor = new Jaguar(3);
+	Jaguar liftMotor = new Jaguar(7);
 	
-	TalonSRX intakeMotorR = new TalonSRX(5);
-	TalonSRX intakeMotorL = new TalonSRX(6);
+	Victor intakeMotorR = new Victor(4);
+	Victor intakeMotorL = new Victor(3);
+	DigitalInput limitSwitchA; 
+	DigitalInput limitSwitchB; 
+
 	
-	boolean robotIsOn = true;
+	
+	boolean robotIsOn1 = true;
 
 	
 	boolean robotIsOn = true;
@@ -68,7 +78,7 @@ public class Robot extends IterativeRobot {
 	
 	double desiredAngle;
 	double power;
-	
+		
 	DifferentialDrive drivebase;
 	
 	/**
@@ -105,6 +115,9 @@ public class Robot extends IterativeRobot {
 		pdp = new PowerDistributionPanel();
 		targetVoltage = 5.5;
 		
+		limitSwitchA = new DigitalInput(0);
+		limitSwitchB = new DigitalInput(1);
+
 		CameraServer.getInstance().startAutomaticCapture();
 		
 	}
@@ -135,7 +148,7 @@ public class Robot extends IterativeRobot {
 	public void autonomousPeriodic() {
 		double seconds = time.get();
 		double gyroAngle = gyro.getAngle();
-		//System.out.println(gyroAngle);
+		System.out.println(gyroAngle);
 		currentVoltage = pdp.getVoltage();
 		
 		switch(autonomous) {
@@ -155,8 +168,8 @@ public class Robot extends IterativeRobot {
 							liftMotor.set(1); //turn on lift
 						}
 						else if(seconds < 10) { //dispense cube
-							intakeLeft.set(-.5);
-							intakeRight.set(.5);
+							intakeMotorL.set(-.5);
+							intakeMotorR.set(.5);
 						}
 					}
 					
@@ -186,8 +199,8 @@ public class Robot extends IterativeRobot {
 							liftMotor.set(1);//turn on lift - might move this with the 'slowly drive forward part
 						}
 						else if(seconds < 10) {
-							intakeLeft.set(-5);//dispense cube(but not a cube because FIRST doesn't know how to define a cube)
-							intakeRight.set(.5);
+							intakeMotorL.set(-.5);//dispense cube(but not a cube because FIRST doesn't know how to define a cube)
+							intakeMotorR.set(.5);
 						}
 							}
 				}
@@ -210,8 +223,8 @@ public class Robot extends IterativeRobot {
 							liftMotor.set(1);//turn on lift
 						}
 						else if(seconds < 10) {
-							intakeLeft.set(-5);//dispense cube
-							intakeRight.set(.5);
+							intakeMotorL.set(-5);//dispense cube
+							intakeMotorR.set(.5);
 						}
 					}
 				}
@@ -230,11 +243,11 @@ public class Robot extends IterativeRobot {
 							drivebase.arcadeDrive(5/currentVoltage, 0.8*(gyroAngle-90)); //move towards the switch from 6-8 secs
 						}
 						else if(seconds < 9) {
-							leftWheelMotor.set(1); //turn on lift
+							liftMotor.set(1); //turn on lift
 						}
 						else if(seconds < 10) { //dispense cube from 8-9 secs
-							intakeLeft.set(-.5);
-							intakeRight.set(.5);
+							intakeMotorL.set(-.5);
+							intakeMotorR.set(.5);
 						}
 					}
 					else {
@@ -263,54 +276,30 @@ public class Robot extends IterativeRobot {
 		axisZ = joystick.getRawAxis(2);
 		axisW = joystick.getThrottle();
 		
-		/*double gyroAngle = gyro.getAngle();
-		//double throttle = (-axisW+1)/2;
-		if(Math.abs(axisX) >= JOYSTICK_DEAD_ZONE || Math.abs(axisY) >= JOYSTICK_DEAD_ZONE) {
-			desiredAngle = Math.toDegrees(Math.abs(Math.atan(axisX/axisY)));
-			power = axisY * Math.sqrt(Math.pow(axisX, 2) + Math.pow(axisY, 2))/Math.sqrt(2);
-		} else {
-			power = 0;
-        	desiredAngle = 0;
-		}
-
-		if(axisX < -JOYSTICK_DEAD_ZONE && axisY > JOYSTICK_DEAD_ZONE) { //check if joystick is in quad 2
-			desiredAngle += 270;
-		}
-		else if(axisX <= -JOYSTICK_DEAD_ZONE && axisY <= -JOYSTICK_DEAD_ZONE) { //check if joystick is in quad 3
-			desiredAngle += 180;
-        }
-		else if(axisX > JOYSTICK_DEAD_ZONE && axisY < -JOYSTICK_DEAD_ZONE) { //check if joystick is in quad 4
-			desiredAngle += 90;
-        }
-
-		//double currentPower = (power-oldPower)*0.2 + oldPower;
-		//oldPower = currentPower;
-		//double currentPower = power;
-		*/
 		    
-		m_robotDrive.arcadeDrive(joystick.getY(), joystick.getX());
+		drivebase.arcadeDrive(joystick.getY(), joystick.getX());
 		
 		if(joystick .getRawButton(5) && !limitSwitchA.get()) { // move carriage up
 			liftMotor.set(0.5);
 		}
-		else if (joystick .getRawButton(3) /*&& !limitSwitchB.get()*/) {  // move carriage down
+		else if (joystick .getRawButton(3) && !limitSwitchB.get()) {  // move carriage down
 			liftMotor.set(-0.5);
 		} else {
 			liftMotor.set(0);
 		}
 	     
 		if(joystick.getRawButton(6)) {
-			intakeRight.set(ControlMode.PercentOutput, 0.5);
-			intakeLeft.set(ControlMode.PercentOutput, -0.5);
+			intakeMotorR.set(0.5);;
+			intakeMotorL.set(-0.5);;
 		}
 		else if(joystick.getRawButton(7)) {
-			intakeRight.set(ControlMode.PercentOutput, -0.5);
-			intakeLeft.set(ControlMode.PercentOutput, 0.5);
+			intakeMotorR.set(-0.5);;
+			intakeMotorL.set(0.5);;
 		}
 		else {
-			intakeRight.set(ControlMode.PercentOutput, 0);
+			intakeMotorR.set(0);
 		
-			intakeLeft.set(ControlMode.PercentOutput, 0);
+			intakeMotorL.set(0);
 		}
 	
 	}
