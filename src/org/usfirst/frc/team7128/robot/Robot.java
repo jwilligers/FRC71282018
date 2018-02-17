@@ -45,12 +45,10 @@ public class Robot extends IterativeRobot {
 	Victor intakeMotorL = new Victor(3);
 	DigitalInput limitSwitchA; 
 	DigitalInput limitSwitchB; 
-
+	DigitalInput limitSwitchC;
 	
 	
 	boolean robotIsOn1 = true;
-
-	
 	boolean robotIsOn = true;
 	
 	double axisX;
@@ -117,6 +115,7 @@ public class Robot extends IterativeRobot {
 		
 		limitSwitchA = new DigitalInput(0);
 		limitSwitchB = new DigitalInput(1);
+		limitSwitchC = new DigitalInput(2);
 
 		CameraServer.getInstance().startAutomaticCapture();
 		
@@ -270,11 +269,6 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-
-		axisX = joystick.getRawAxis(0);
-		axisY = joystick.getRawAxis(1);
-		axisZ = joystick.getRawAxis(2);
-		axisW = joystick.getThrottle();
 		
 		    
 		drivebase.arcadeDrive(joystick.getY(), joystick.getX());
@@ -288,11 +282,11 @@ public class Robot extends IterativeRobot {
 			liftMotor.set(0);
 		}
 	     
-		if(joystick.getRawButton(6)) {
+		if(joystick.getRawButton(1) && !limitSwitchC.get() ) {  // may not be intake but may be the out take, therefore you may need to switch the two around.
 			intakeMotorR.set(0.5);;
 			intakeMotorL.set(-0.5);;
 		}
-		else if(joystick.getRawButton(7)) {
+		else if(joystick.getRawButton(2)) {
 			intakeMotorR.set(-0.5);;
 			intakeMotorL.set(0.5);;
 		}
@@ -303,4 +297,5 @@ public class Robot extends IterativeRobot {
 		}
 	
 	}
+	
 }
