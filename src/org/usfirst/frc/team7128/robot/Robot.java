@@ -39,10 +39,12 @@ public class Robot extends IterativeRobot {
 	Spark leftSpark; //Left Drive Motor
 	Spark rightSpark; //Right Drive Motor
 	
-	Jaguar liftMotor = new Jaguar(7);
+	Jaguar liftMotor1 = new Jaguar(2);
+	Jaguar liftMotor2 = new Jaguar(3);
 	
-	Victor intakeMotorR = new Victor(4);
-	Victor intakeMotorL = new Victor(3);
+	
+	Victor intakeMotorR = new Victor(5);
+	Victor intakeMotorL = new Victor(4);
 	DigitalInput limitSwitchA; 
 	DigitalInput limitSwitchB; 
 	DigitalInput limitSwitchC;
@@ -95,11 +97,11 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void robotInit() {
 		
-		autoChooser = new SendableChooser();
-		autoChooser.addDefault("Left", AutoModes.LEFT);
+		/*autoChooser = new SendableChooser();
+		autoChooser.addDefault("Left", AutoModes.LEFT);+
 		autoChooser.addObject("Right", AutoModes.RIGHT);
 		autoChooser.addObject("Middle", AutoModes.MIDDLE);
-		
+		*/
 		gameData = DriverStation.getInstance().getGameSpecificMessage();
 		
 		leftSpark = new Spark(0);
@@ -113,9 +115,9 @@ public class Robot extends IterativeRobot {
 		pdp = new PowerDistributionPanel();
 		targetVoltage = 5.5;
 		
-		limitSwitchA = new DigitalInput(0);
+		limitSwitchA = new DigitalInput(2);
 		limitSwitchB = new DigitalInput(1);
-		limitSwitchC = new DigitalInput(2);
+		limitSwitchC = new DigitalInput(0);
 
 		CameraServer.getInstance().startAutomaticCapture();
 		
@@ -164,7 +166,7 @@ public class Robot extends IterativeRobot {
 							drivebase.arcadeDrive(5/currentVoltage, 0.8*(gyroAngle-90)); //move towards the switch
 						}
 						else if(seconds < 9) {
-							liftMotor.set(1); //turn on lift
+							liftMotor1.set(1); //turn on lift
 						}
 						else if(seconds < 10) { //dispense cube
 							intakeMotorL.set(-.5);
@@ -195,7 +197,7 @@ public class Robot extends IterativeRobot {
 							drivebase.arcadeDrive(5/currentVoltage, 0.08*(gyroAngle - 0));//slowly drive forward 49"
 						}
 						else if(seconds < 9) {
-							liftMotor.set(1);//turn on lift - might move this with the 'slowly drive forward part
+							liftMotor1.set(1);//turn on lift - might move this with the 'slowly drive forward part
 						}
 						else if(seconds < 10) {
 							intakeMotorL.set(-.5);//dispense cube(but not a cube because FIRST doesn't know how to define a cube)
@@ -219,7 +221,7 @@ public class Robot extends IterativeRobot {
 							drivebase.arcadeDrive(5/currentVoltage, 0.08*(gyroAngle - 0));//slowly drive foward
 						}
 						else if(seconds < 9) {
-							liftMotor.set(1);//turn on lift
+							liftMotor1.set(1);//turn on lift
 						}
 						else if(seconds < 10) {
 							intakeMotorL.set(-5);//dispense cube
@@ -235,14 +237,14 @@ public class Robot extends IterativeRobot {
 						if (seconds < 5) {
 							drivebase.arcadeDrive(10/currentVoltage, 0.8*(gyroAngle-0)); //change so it goes next to the switch (120") from 0-5 secs
 						}
-						else if(seconds < 6) {
+						else if(seconds < 6) {  
 							drivebase.arcadeDrive(0, 0.8*(gyroAngle - 270)); //turn 90 degrees from 5-6 secs
 						}
 						else if(seconds < 8) {
 							drivebase.arcadeDrive(5/currentVoltage, 0.8*(gyroAngle-90)); //move towards the switch from 6-8 secs
 						}
 						else if(seconds < 9) {
-							liftMotor.set(1); //turn on lift
+							liftMotor1.set(1); //turn on lift
 						}
 						else if(seconds < 10) { //dispense cube from 8-9 secs
 							intakeMotorL.set(-.5);
@@ -270,32 +272,57 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		
-		    
+		double intakeSpeed = (axisW + 1) / 2 ;
+		System.out.println(limitSwitchB.get());
+		System.out.println("intake speed = " + joystick.getY());
 		drivebase.arcadeDrive(joystick.getY(), joystick.getX());
 		
-		if(joystick .getRawButton(5) && !limitSwitchA.get()) { // move carriage up
-			liftMotor.set(0.5);
-		}
-		else if (joystick .getRawButton(3) && !limitSwitchB.get()) {  // move carriage down
-			liftMotor.set(-0.5);
+		if(joystick.getRawButton(5)) { // move carriage up
+			liftMotor1.set(1);
+			liftMotor2.set(1);
+		} else if(joystick.getRawButton(3) && !limitSwitchB.get() ) {  // move carriage down
+			liftMotor1.set(-.3);
+			liftMotor2.set(-.3);
 		} else {
-			liftMotor.set(0);
+			liftMotor1.set(0);
+			liftMotor2.set(0);
 		}
-	     
-		if(joystick.getRawButton(1) && !limitSwitchC.get() ) {  // may not be intake but may be the out take, therefore you may need to switch the two around.
-			intakeMotorR.set(0.5);;
-			intakeMotorL.set(-0.5);;
-		}
-		else if(joystick.getRawButton(2)) {
-			intakeMotorR.set(-0.5);;
-			intakeMotorL.set(0.5);;
-		}
-		else {
-			intakeMotorR.set(0);
+	    
 		
+		if(joystick.getRawButton(1 )&& !limitSwitchC.get() ) {  // may not be intake but may be the out take, therefore you may need to switch the two around.
+			
+			intakeMotorR.set(intakeSpeed); // intake
+			intakeMotorL.set(intakeSpeed *-1);
+		
+		} else if(joystick.getRawButton(2)) { // outake
+			
+			intakeMotorR.set(intakeSpeed*-1);
+			intakeMotorL.set(intakeSpeed);
+		
+		} else {
+			
+			intakeMotorR.set(0);
 			intakeMotorL.set(0);
+		
 		}
+	if ( !limitSwitchB.get() && joystick.getY () > 0 ) {
+		drivebase.arcadeDrive(joystick.getY()*0.6, joystick.getX());
+	}
+	else {
+		drivebase.arcadeDrive(joystick.getY(), joystick.getX());
 	
 	}
+	/*if ( joystick.getRawButton(11)) {
+		leftSpark.setDisabled();
+	}	else if (joystick.getRawButton(12)) {
+		rightSpark.setDisabled();;
+	}
+	*/
+
 	
-}
+	}
+
+		}
+	
+		
+
