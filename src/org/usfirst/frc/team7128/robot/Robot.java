@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 //import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.cscore.UsbCamera;
 
 //import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
@@ -34,8 +36,8 @@ import edu.wpi.first.wpilibj.DriverStation;
  * project.
  */
 public class Robot extends IterativeRobot {
-	
-	private Joystick joystick = new Joystick(0);
+	UsbCamera cam;
+	private Joystick joystick = new Joystick(1);
 	private XboxController Controller = new XboxController(2);
 	Spark leftSpark; //Left Drive Motor
 	Spark rightSpark; //Right Drive Motor
@@ -87,7 +89,7 @@ public class Robot extends IterativeRobot {
 	 * used for any initialization code.
 	 */
 	public enum AutoModes {
-		LEFT,MIDDLE,RIGHT
+		LEFT,MIDDLE,RIGHT,SIMPLE
 	}
 	public AutoModes AutoMode(AutoModes autonomous) {
 		this.autonomous = autonomous;
@@ -98,13 +100,15 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void robotInit() {
 		
-		/*autoChooser = new SendableChooser();
-		autoChooser.addDefault("Left", AutoModes.LEFT);+
-		autoChooser.addObject("Right", AutoModes.RIGHT);
-		autoChooser.addObject("Middle", AutoModes.MIDDLE);
-		*/
-		gameData = DriverStation.getInstance().getGameSpecificMessage();
-		
+		/*gameData = DriverStation.getInstance().getGameSpecificMessage();
+		autoChooser = new SendableChooser();
+        
+        autoChooser.addDefault("Left", AutoModes.LEFT);
+        autoChooser.addObject("Right", AutoModes.RIGHT);
+        autoChooser.addObject("Middle", AutoModes.MIDDLE);
+        
+        SmartDashboard.putData(autoChooser); */
+        
 		leftSpark = new Spark(0);
 		rightSpark = new Spark(1);
 		drivebase = new DifferentialDrive(leftSpark, rightSpark);
@@ -114,13 +118,13 @@ public class Robot extends IterativeRobot {
 		gyro.reset();
 		
 		pdp = new PowerDistributionPanel();
-		targetVoltage = 5.5;
-		
+
 		limitSwitchA = new DigitalInput(2);
 		limitSwitchB = new DigitalInput(1);
 		limitSwitchC = new DigitalInput(0);
-
-		CameraServer.getInstance().startAutomaticCapture();
+		cam = CameraServer.getInstance().startAutomaticCapture();
+		cam.setResolution(320, 240);
+		//CameraServer.getInstance().startAutomaticCapture();
 		
 	}
 
@@ -137,131 +141,228 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		
-		time = new Timer();
-		time.reset();
-		gyro.reset();
-		time.start();
-	}
+        gameData = DriverStation.getInstance().getGameSpecificMessage();
+        
+        time = new Timer();
+        time.reset();
+        gyro.reset();
+        time.start();
+    }
+	
 
 	
 	
 	@Override
 	public void autonomousPeriodic() {
-		double seconds = time.get();
-		double gyroAngle = gyro.getAngle();
-		System.out.println(gyroAngle);
-		currentVoltage = pdp.getVoltage();
-		
-		switch(autonomous) {
-			case LEFT:
-				if(gameData.length() > 0) {
-					if(gameData.charAt(0) == 'L') {
-						if (seconds < 5) {
-							drivebase.arcadeDrive(10/currentVoltage, 0.8*(gyroAngle-0)); //change so it goes next to the switch (120")
-						}
-						else if(seconds < 5.5) {
-							drivebase.arcadeDrive(0, 0.8*(gyroAngle - 90)); //turn 90 degrees
-						}
-						else if(seconds < 8) {
-							drivebase.arcadeDrive(5/currentVoltage, 0.8*(gyroAngle-90)); //move towards the switch
-						}
-						else if(seconds < 9) {
-							liftMotor1.set(1); //turn on lift
-						}
-						else if(seconds < 10) { //dispense cube
-							intakeMotorL.set(-.5);
-							intakeMotorR.set(.5);
-						}
-					}
-					
-					else {
-						if (seconds < 5) {
-							drivebase.arcadeDrive(10/currentVoltage, 0.8*(gyroAngle-0)); //change so it goes next to the switch (120")
-						}
-					}
-				}
-			break;
-			case MIDDLE:
-				if(gameData.length() > 0) {
-					if(gameData.charAt(0) == 'L') {
-						if (seconds < 1) {
-							drivebase.arcadeDrive(0.0, 0.08*(gyroAngle - 305.5)); //turn to the left
-						}
-						else if(seconds < 5) {
-							drivebase.arcadeDrive(10/currentVoltage, 0.08*(gyroAngle - 305.5));//drive forward 60"
-						}
-						else if(seconds < 6) {
-							drivebase.arcadeDrive(0, 0.08*(gyroAngle - 0)); //straighten up with switch
-						}
-						else if(seconds < 8) {
-							drivebase.arcadeDrive(5/currentVoltage, 0.08*(gyroAngle - 0));//slowly drive forward 49"
-						}
-						else if(seconds < 9) {
-							liftMotor1.set(1);//turn on lift - might move this with the 'slowly drive forward part
-						}
-						else if(seconds < 10) {
-							intakeMotorL.set(-.5);//dispense cube(but not a cube because FIRST doesn't know how to define a cube)
-							intakeMotorR.set(.5);
-						}
-							}
-				}
-				
-				else if(gameData.length() > 0) {
-					if(gameData.charAt(0) == 'R') {
-						if (seconds < 1) {
-							drivebase.arcadeDrive(0.0, 0.08*(gyroAngle - 54.46)); //turn to the right
-						}
-						else if(seconds < 5) {
-							drivebase.arcadeDrive(10/currentVoltage, 0.08*(gyroAngle - 54.46));//drive forward
-						}
-						else if(seconds < 6) {
-							drivebase.arcadeDrive(0, 0.08*(gyroAngle - 0));//straighten up
-						}
-						else if(seconds < 8) {
-							drivebase.arcadeDrive(5/currentVoltage, 0.08*(gyroAngle - 0));//slowly drive foward
-						}
-						else if(seconds < 9) {
-							liftMotor1.set(1);//turn on lift
-						}
-						else if(seconds < 10) {
-							intakeMotorL.set(-5);//dispense cube
-							intakeMotorR.set(.5);
-						}
-					}
-				}
-					
-			break;
-			case RIGHT:
-				if(gameData.length() > 0) {
-					if(gameData.charAt(0) == 'R') {
-						if (seconds < 5) {
-							drivebase.arcadeDrive(10/currentVoltage, 0.8*(gyroAngle-0)); //change so it goes next to the switch (120") from 0-5 secs
-						}
-						else if(seconds < 6) {  
-							drivebase.arcadeDrive(0, 0.8*(gyroAngle - 270)); //turn 90 degrees from 5-6 secs
-						}
-						else if(seconds < 8) {
-							drivebase.arcadeDrive(5/currentVoltage, 0.8*(gyroAngle-90)); //move towards the switch from 6-8 secs
-						}
-						else if(seconds < 9) {
-							liftMotor1.set(1); //turn on lift
-						}
-						else if(seconds < 10) { //dispense cube from 8-9 secs
-							intakeMotorL.set(-.5);
-							intakeMotorR.set(.5);
-						}
-					}
-					else {
-						if (seconds < 5) {
-							drivebase.arcadeDrive(10/currentVoltage, 0.8*(gyroAngle-0)); //change so it goes next to the switch (120") from 0-5 secs
-						}
-					}
-				}
-			break;
-		}
-	}
+		 double seconds = time.get();
+	        double gyroAngle = gyro.getAngle();
+	        //System.out.println(gyroAngle);
+	        //currentVoltage = pdp.getVoltage();
+	        if (seconds < 3.2)
+	        {
+	           drivebase.arcadeDrive(-0.65, 0);
+	        }
+	        else
+	        {
+	           drivebase.arcadeDrive(0, 0.0);
+	        }
+	        
+	        /*        
+	        switch(autonomous) {
 	
+	        //left code
+	            case LEFT:
+	                if(gameData.length() > 0) {
+	                    if(gameData.charAt(0) == 'L') {
+	                        if (seconds < 2) {
+	                            drivebase.arcadeDrive(-6/currentVoltage, 0.04*(gyroAngle - 0)); //drive forward
+	                        }
+	                        else if(seconds < 2.2) {
+	                            drivebase.arcadeDrive(0, 0);
+	                        }
+	                        else if(seconds < 2.5) {
+	                            drivebase.arcadeDrive(8/currentVoltage, 0.04*(gyroAngle - 0));//drive backwards
+	                        }
+	                        else if(seconds < 4) {
+	                            drivebase.arcadeDrive(-7/currentVoltage, 0.04*(gyroAngle - 0)); //pick up cube
+	                            intakeMotorL.set(-.5);
+	                            intakeMotorR.set(.5);
+	                        }
+	                        else if (seconds < 6) {
+	                            drivebase.arcadeDrive(10/currentVoltage, 0.04*(gyroAngle-0)); //drive next to switch
+	                            
+	                        }
+	                        else if (seconds < 8) { //turn towards switch
+	                            drivebase.arcadeDrive(0, -0.04*(gyroAngle + 90));
+	                        }
+	                        else if(seconds <9) {
+	                            liftMotor1.set(1);
+	                            liftMotor1.set(2);
+	                        }
+	                        else if (seconds < 9.5 ) {
+	                            drivebase.arcadeDrive(6/currentVoltage, -0.08*(gyroAngle + 90));
+	                            liftMotor1.set(0);
+	                            liftMotor1.set(0);
+	                                                    }
+	                        else if (seconds < 10) {
+	                            intakeMotorL.set(-.5);
+	                            intakeMotorR.set(.5);
+	                            drivebase.arcadeDrive(0, 0);
+	                        }
+	                        else if (seconds < 10.5) {
+	                            liftMotor1.set(0);
+	                            liftMotor2.set(0);
+	                            
+	                        }
+	                    }
+	                    else {
+	                        if (seconds < 5) {
+	                            drivebase.arcadeDrive(10/currentVoltage, 0.8*(gyroAngle-0)); //change so it goes next to the switch (120")
+	                        }
+	                    }
+	                }
+	            break;
+	            //middle code
+	            case MIDDLE:
+	                if(gameData.length() > 0) {
+	            if(gameData.charAt(0) == 'L') {
+	                if (seconds < 2) {
+	                    drivebase.arcadeDrive(-6/currentVoltage, 0.03*(gyroAngle - 0)); //drive forward
+	                }
+	                else if(seconds < 2.2) {
+	                    drivebase.arcadeDrive(0, 0);
+	                }
+	                else if(seconds < 2.5) {
+	                    drivebase.arcadeDrive(8/currentVoltage, 0.06*(gyroAngle - 0));//drive backwards
+	                }
+	                else if(seconds < 4) {
+	                    drivebase.arcadeDrive(-7/currentVoltage, 0.03*(gyroAngle - 0)); //pick up cube
+	                    intakeMotorL.set(-.5);
+	                    intakeMotorR.set(.5);
+	                }
+	                else if(seconds < 5) {
+	                    intakeMotorL.set(-.2);
+	                    intakeMotorR.set(.2);
+	                    drivebase.arcadeDrive(0, -0.03*(gyroAngle + 90));//turn 90 degrees
+	                    
+	                }
+	                else if(seconds < 7) {
+	                    drivebase.arcadeDrive(-6/currentVoltage, -0.04*(gyroAngle + 90));
+	                }
+	                else if(seconds < 9) {
+	                    liftMotor1.set(1);//drive forward and turn on lift
+	                    liftMotor2.set(1);//drive forward and turn on lift
+	                }
+	                else if(seconds < 9.5) {
+	                    liftMotor1.set(0);
+	                    liftMotor2.set(0);
+	                    drivebase.arcadeDrive(0, -0.02*(gyroAngle - 0)/1.9); //straighten up with switch
+	                }
+	                else if(seconds < 13) {
+	                    drivebase.arcadeDrive(-6/currentVoltage, -0.02*(gyroAngle - 0)); //drive into the switch
+	                }
+	                else if(seconds < 14 ) { 
+	                    drivebase.arcadeDrive(0, 0);
+	                    intakeMotorL.set(.5);//dispense cube(but not a cube because FIRST doesn't know how to define a cube)
+	                    intakeMotorR.set(-.5);
+	                }
+	            }
+	        }
+	        
+	        else if(gameData.length() > 0) {
+	            if(gameData.charAt(0) == 'R') {
+	                if (seconds < 1) {
+	                    drivebase.arcadeDrive(-10/currentVoltage, 0.08*(gyroAngle - 0)); //drive forward
+	                }
+	                else if(seconds < 1.5) {
+	                    drivebase.arcadeDrive(-currentVoltage/currentVoltage, 0.08*(gyroAngle - 0));//drive backwards
+	                }
+	                else if(seconds < 3) {
+	                    drivebase.arcadeDrive(6/currentVoltage, 0.08*(gyroAngle - 0)); //pick up cube
+	                    intakeMotorL.set(.5);
+	                    intakeMotorR.set(-.5);
+	                }
+	                else if(seconds < 4) {
+	                    drivebase.arcadeDrive(5/currentVoltage, 0.04*(gyroAngle - 90));//turn 90 degrees
+	                }
+	                else if(seconds < 6) {
+	                    liftMotor1.set(1);//drive forward and turn on lift
+	                    liftMotor2.set(1);
+	                    drivebase.arcadeDrive(9.5/currentVoltage, 0.04*(gyroAngle - 90));
+	                }
+	                else if(seconds < 7.5) {
+	                    drivebase.arcadeDrive(0, 0.8*(gyroAngle - 0)); //straighten up with switch
+	                    liftMotor1.set(0);
+	                    liftMotor2.set(0);
+	                }
+	                else if(seconds < 8) {
+	                    drivebase.arcadeDrive(8/currentVoltage, 0.04*(gyroAngle - 90)); //drive into the switch
+	                }
+	                else if(seconds < 10 ) { 
+	                    drivebase.arcadeDrive(0, 0);
+	                    intakeMotorL.set(-.5);//dispense cube(but not a cube because FIRST doesn't know how to define a cube)
+	                    intakeMotorR.set(.5);
+	                }
+	            }
+	            }
+	            break;
+	            
+	            
+	            //right code
+	            case RIGHT:
+	                if(gameData.length() > 0) {
+	                    if(gameData.charAt(0) == 'R') {
+	                        if (seconds < 2) {
+	                            drivebase.arcadeDrive(-6/currentVoltage, 0.04*(gyroAngle - 0)); //drive forward
+	                        }
+	                        else if(seconds < 2.2) {
+	                            drivebase.arcadeDrive(0, 0);
+	                        }
+	                        else if(seconds < 2.5) {
+	                            drivebase.arcadeDrive(8/currentVoltage, 0.04*(gyroAngle - 0));//drive backwards
+	                        }
+	                        else if(seconds < 4) {
+	                            drivebase.arcadeDrive(-7/currentVoltage, 0.04*(gyroAngle - 0)); //pick up cube
+	                            intakeMotorL.set(-.5);
+	                            intakeMotorR.set(.5);
+	                        }
+	                        else if (seconds < 6) {
+	                            drivebase.arcadeDrive(10/currentVoltage, 0.04*(gyroAngle-0)); //drive next to switch
+	                            
+	                        }
+	                        else if (seconds < 8) { //turn towards switch
+	                            drivebase.arcadeDrive(0, 0.04*(gyroAngle - 90));
+	                        }
+	                        else if(seconds <9) {
+	                            liftMotor1.set(1);
+	                            liftMotor1.set(2);
+	                        }
+	                        else if (seconds < 9.5 ) {
+	                            drivebase.arcadeDrive(6/currentVoltage, 0.04*(gyroAngle - 90));
+	                            liftMotor1.set(0);
+	                            liftMotor1.set(0);
+	                                                    }
+	                        else if (seconds < 10) {
+	                            intakeMotorL.set(-.5);
+	                            intakeMotorR.set(.5);
+	                            drivebase.arcadeDrive(0, 0);
+	                        }
+	                        else if (seconds < 10.5) {
+	                            liftMotor1.set(0);
+	                            liftMotor2.set(0);
+	                            
+	                        }
+	                    }
+	                    else {
+	                        if (seconds < 5) {
+	                            drivebase.arcadeDrive(10/currentVoltage, 0.4*(gyroAngle-0)); //change so it goes next to the switch (120")
+	                        }
+	                    }
+	                }
+	            break; 
+	        }
+	        */
+	    }
 	@Override
 	public void teleopInit() {
 		gyro.reset();
@@ -270,32 +371,42 @@ public class Robot extends IterativeRobot {
 	/**
 	 * This function is called periodically during operator control.
 	 */
+	boolean limitReached = false;
 	@Override
 	public void teleopPeriodic() {
 		
-		double intakeSpeed = (7/currentVoltage);
+		double intakeSpeed = (0.8);
 		System.out.println(limitSwitchB.get());
 		System.out.println("intake speed = " + joystick.getY());
-		drivebase.arcadeDrive(joystick.getY(), joystick.getX());
+		drivebase.arcadeDrive((joystick.getY() * (-joystick.getThrottle() + 1.0) / 2.0), joystick.getX() * (-joystick.getThrottle() + 1.0) / 2.0);
+
+		if(limitSwitchA.get() == true)
+		{
+			limitReached = true;
+			System.out.println("limitReached");
+		}
+		if(Controller.getXButton() && !limitReached) { // move carriage up---- this might not work
 		
-		if(Controller.getRawButton(0)&& !limitSwitchA.get()) { // move carriage up---- this might not work
-			liftMotor1.set(1);
-			liftMotor2.set(1);
-		} else if(Controller.getRawButton(4) && !limitSwitchB.get() ) {  // move carriage down
-			liftMotor1.set(-.3);
-			liftMotor2.set(-.3);
+			
+			liftMotor1.set(-1);
+			liftMotor2.set(-1);}
+			else if(Controller.getBButton()&& !limitSwitchB.get()) { // move carriage down---- this might not work
+				
+				limitReached = false;
+				liftMotor1.set(.3);
+				liftMotor2.set(.3);
 		} else {
 			liftMotor1.set(0);
 			liftMotor2.set(0);
 		}
 	    
 		
-		if(Controller.getAButtonPressed() && !limitSwitchC.get() ) {  
+		if(Controller.getAButton()  ) {  
 			
 			intakeMotorR.set(intakeSpeed); // intake
 			intakeMotorL.set(-intakeSpeed);
 		
-		} else if(Controller.getYButtonPressed()) { // outake
+		} else if(Controller.getYButton()) { // outake
 			
 			intakeMotorR.set(-intakeSpeed);
 			intakeMotorL.set(intakeSpeed);
@@ -306,17 +417,18 @@ public class Robot extends IterativeRobot {
 			intakeMotorL.set(0);
 		
 		}
-	if ( !limitSwitchB.get() && joystick.getY () > 0 ) {
-		drivebase.arcadeDrive(joystick.getY()*0.6, joystick.getX());
-	}
-	else {
-		drivebase.arcadeDrive(joystick.getY(), joystick.getX());
+	//if ( !limitSwitchB.get() && joystick.getY () > 0 ) {
+	//	drivebase.arcadeDrive(joystick.getY()*0.85, joystick.getX()*0.85);
+	//}
+	//else {
+	//	drivebase.arcadeDrive(joystick.getY(), joystick.getX());
+	
+	
 	
 	}
-	
-	}
+}
 
-		}
+
 	
 		
 
