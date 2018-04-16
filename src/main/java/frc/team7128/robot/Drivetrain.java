@@ -6,15 +6,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 
 public class Drivetrain implements Subsystem{
-    Spark leftSpark; //Left Drive Motor
-    Spark rightSpark; //Right Drive Motor
+    private Spark leftSpark; //Left Drive Motor
+    private Spark rightSpark; //Right Drive Motor
 
-    ADXRS450_Gyro gyro;
+    private ADXRS450_Gyro gyro;
 
-    DifferentialDrive drivebase;
+    private DifferentialDrive drivebase;
 
 
-    public void Drivetrain()
+    public Drivetrain()
     {
         leftSpark = new Spark(Constants.pwmLeftDrivetrain);
         rightSpark = new Spark(Constants.pwmRightDrivetrain);

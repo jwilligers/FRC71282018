@@ -5,10 +5,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Intake implements Subsystem{
 
-    Victor intakeMotorL;
-    Victor intakeMotorR;
+    private Victor intakeMotorL;
+    private Victor intakeMotorR;
 
-    public void Intake()
+    public Intake()
     {
         intakeMotorL = new Victor(Constants.pwmLeftIntake);
         intakeMotorR = new Victor(Constants.pwmRightIntake);

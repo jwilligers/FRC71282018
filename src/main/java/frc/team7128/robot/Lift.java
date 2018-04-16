@@ -6,14 +6,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Lift {
     // Motors
-    Jaguar liftMotor1;
-    Jaguar liftMotor2;
+    private Jaguar liftMotor1;
+    private Jaguar liftMotor2;
 
     //Sensors
-    DigitalInput liftLowerLimit;
-    DigitalInput liftUpperLimit;
+    private DigitalInput liftLowerLimit;
+    private DigitalInput liftUpperLimit;
 
-    public void Lift() {
+    public Lift() {
         liftMotor1 = new Jaguar(2);
         liftMotor2 = new Jaguar(3);
 

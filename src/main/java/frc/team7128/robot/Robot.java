@@ -9,42 +9,33 @@ package frc.team7128.robot;
 
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 
 public class Robot extends IterativeRobot {
-	UsbCamera cam;
+	private UsbCamera cam;
 	private Joystick joystick = new Joystick(1);
 	private XboxController Controller = new XboxController(2);
 
     // Subsystems
-    Drivetrain drivetrain;
+    private Drivetrain drivetrain;
     private Intake intake;
     private Lift lift;
 
-    // Sensors
-	DigitalInput limitSwitchC;
-
     // Other
-	Timer timer;
-	String gameData;
-
-
+    private Timer timer;
+    //private String gameData;
 
 	@Override
 	public void robotInit() {
-		gameData = DriverStation.getInstance().getGameSpecificMessage();
         drivetrain = new Drivetrain();
         intake = new Intake();
         lift = new Lift();
 
         timer = new Timer();
 
-		limitSwitchC = new DigitalInput(0);
 		cam = CameraServer.getInstance().startAutomaticCapture();
 		cam.setResolution(320, 240);
 		//CameraServer.getInstance().startAutomaticCapture();
@@ -52,7 +43,7 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void autonomousInit() {
-        gameData = DriverStation.getInstance().getGameSpecificMessage();
+        //gameData = DriverStation.getInstance().getGameSpecificMessage();
         drivetrain.resetGyro();
         timer.reset();
         timer.start();
@@ -98,7 +89,7 @@ public class Robot extends IterativeRobot {
 		}
         updateSmartDashboard();
 	}
-    public void updateSmartDashboard()
+    private void updateSmartDashboard()
     {
         drivetrain.updateSmartDashboard();
         intake.updateSmartDashboard();
