@@ -1,13 +1,10 @@
-package org.usfirst.frc.team7128.robot;
+package frc.team7128.robot;
 
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 
-/**
- * Created by Joshua on 16/04/2018.
- */
 public class Drivetrain implements Subsystem{
     Spark leftSpark; //Left Drive Motor
     Spark rightSpark; //Right Drive Motor
@@ -19,8 +16,8 @@ public class Drivetrain implements Subsystem{
 
     public void Drivetrain()
     {
-        leftSpark = new Spark(0);
-        rightSpark = new Spark(1);
+        leftSpark = new Spark(Constants.pwmLeftDrivetrain);
+        rightSpark = new Spark(Constants.pwmRightDrivetrain);
         drivebase = new DifferentialDrive(leftSpark, rightSpark);
 
         gyro = new ADXRS450_Gyro();

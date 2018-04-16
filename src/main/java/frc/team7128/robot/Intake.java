@@ -1,11 +1,7 @@
-package org.usfirst.frc.team7128.robot;
+package frc.team7128.robot;
 
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-/**
- * Created by Joshua on 16/04/2018.
- */
 
 public class Intake implements Subsystem{
 
@@ -14,8 +10,8 @@ public class Intake implements Subsystem{
 
     public void Intake()
     {
-        intakeMotorR = new Victor(5);
-        intakeMotorL = new Victor(4);
+        intakeMotorL = new Victor(Constants.pwmLeftIntake);
+        intakeMotorR = new Victor(Constants.pwmRightIntake);
     }
 
     public void setSpeed(double speed)

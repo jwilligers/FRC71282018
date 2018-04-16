@@ -1,12 +1,9 @@
-package org.usfirst.frc.team7128.robot;
+package frc.team7128.robot;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-/**
- * Created by Joshua on 16/04/2018.
- */
 public class Lift {
     // Motors
     Jaguar liftMotor1;
@@ -16,21 +13,19 @@ public class Lift {
     DigitalInput liftLowerLimit;
     DigitalInput liftUpperLimit;
 
-    public void Lift()
-    {
+    public void Lift() {
         liftMotor1 = new Jaguar(2);
         liftMotor2 = new Jaguar(3);
 
         liftLowerLimit = new DigitalInput(1);
         liftUpperLimit = new DigitalInput(2);
     }
-    private void setSpeed(double speed)
-    {
+
+    private void setSpeed(double speed) {
         liftMotor1.set(speed);
         liftMotor2.set(speed);
     }
-    public void raise()
-    {
+    public void raise() {
         if (!liftUpperLimit.get()) {
             setSpeed(-1);
         }
@@ -43,7 +38,7 @@ public class Lift {
     }
     public void holdPosition()
     {
-        setSpeed(0);
+        setSpeed(-0.1);
     }
     public void stop()
     {
