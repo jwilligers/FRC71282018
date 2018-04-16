@@ -13,12 +13,11 @@ public class Lift {
     private DigitalInput liftLowerLimit;
     private DigitalInput liftUpperLimit;
 
-    public Lift() {
-        liftMotor1 = new Jaguar(2);
-        liftMotor2 = new Jaguar(3);
-
-        liftLowerLimit = new DigitalInput(1);
-        liftUpperLimit = new DigitalInput(2);
+    public Lift() { // Constructor called when creating a new lift
+        liftMotor1 = new Jaguar(Constants.pwmLiftA);
+        liftMotor2 = new Jaguar(Constants.pwmLiftB);
+        liftLowerLimit = new DigitalInput(Constants.dioLiftLowerLimit);
+        liftUpperLimit = new DigitalInput(Constants.dioLiftUpperLimit);
     }
 
     private void setSpeed(double speed) {
@@ -27,13 +26,13 @@ public class Lift {
     }
     public void raise() {
         if (!liftUpperLimit.get()) {
-            setSpeed(-1);
+            setSpeed(-Constants.liftRaiseSpeed);
         }
     }
     public void lower()
     {
         if (!liftLowerLimit.get()) {
-            setSpeed(0.3);
+            setSpeed(Constants.liftLowerSpeed);
         }
     }
     public void holdPosition()

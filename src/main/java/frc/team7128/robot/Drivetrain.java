@@ -13,7 +13,6 @@ public class Drivetrain implements Subsystem{
 
     private DifferentialDrive drivebase;
 
-
     public Drivetrain()
     {
         leftSpark = new Spark(Constants.pwmLeftDrivetrain);
