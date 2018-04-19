@@ -15,9 +15,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 
 public class Robot extends IterativeRobot {
-	private UsbCamera cam;
-	private Joystick joystick = new Joystick(1);
-	private XboxController Controller = new XboxController(2);
+    private UsbCamera cam;
+    private Joystick joystick = new Joystick(1);
+    private XboxController Controller = new XboxController(2);
 
     // Subsystems
     private Drivetrain drivetrain;
@@ -62,31 +62,31 @@ public class Robot extends IterativeRobot {
     }
 	@Override
 	public void teleopInit() {
-		drivetrain.resetGyro();
+        drivetrain.resetGyro();
 	}
 
 	@Override
 	public void teleopPeriodic() {
-		drivetrain.arcadeDrive((joystick.getY() * (-joystick.getThrottle() + 1.0) / 2.0), joystick.getX() * (-joystick.getThrottle() + 1.0) / 2.0);
+        drivetrain.arcadeDrive((joystick.getY() * (-joystick.getThrottle() + 1.0) / 2.0), joystick.getX() * (-joystick.getThrottle() + 1.0) / 2.0);
 
-		if (Controller.getXButton()) { // move carriage up---- this might not work
+        if (Controller.getXButton()) { // move carriage up---- this might not work
             lift.raise();
         }
         else if (Controller.getBButton()) { // move carriage down---- this might not work
             lift.lower();
-		}
+        }
         else  {
-		    lift.stop();
-		}
-		if (Controller.getAButton()) {
-			intake.intake();
-		}
+            lift.stop();
+        }
+        if (Controller.getAButton()) {
+            intake.intake();
+        }
         else if (Controller.getYButton()) { // Eject
             intake.eject();
-		}
+        }
         else {
             intake.stop();
-		}
+        }
         updateSmartDashboard();
 	}
     private void updateSmartDashboard()
